@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./user-activity-tracking-api/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+      - monitoring
+    depends_on:
+      - prometheus
+
+  db:
+    container_name: user-activity-tracking-api-db
+    image: postgres:16-alpine
+    restart: always
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: UserActivityTracking
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./user-activity-tracking-api/initdb/01_Events.sql:/docker-entrypoint-initdb.d/01_Events.sql
+      - ./user-activity-tracking-api/initdb/02_UserEventCounts.sql:/docker-entrypoint-initdb.d/02_UserEventCounts.sql
+
+  app:
+    container_name: user-activity-tracking-api
+    build:
+      context: ./user-activity-tracking-api
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      - DB_URL=postgres://postgres:password@db:5432/UserActivityTracking?sslmode=disable
+      - HTTP_PORT=8080
+      - CRON_TAB_COUNT_USERS_EVENT_TASK=* * * * *
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+  user-activity-tracking-app:
+    build:
+      context: ./user-activity-tracking-app
+      dockerfile: Dockerfile
+    container_name: user-activity-tracking-app
+    restart: always
+    ports:
+      - "8081:8081"
+
+volumes:
+  db_data:
+
+networks:
+  monitoring:
+    driver: bridge

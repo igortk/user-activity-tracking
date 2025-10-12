@@ -1,0 +1,6 @@
+[submodule "user-activity-tracking-app"]
+	path = user-activity-tracking-app
+	url = https://github.com/igortk/user-activity-tracking-app.git
+[submodule "user-activity-tracking-api"]
+	path = user-activity-tracking-api
+	url = https://github.com/igortk/user-activity-tracking-api.git
