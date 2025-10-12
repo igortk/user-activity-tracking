@@ -62,6 +62,18 @@ The main docker-compose.yml resides at the root of this repository. This *.yml f
 ```sh
 docker-compose up --build -d
 ```
+## 🛠 .env examples
+.env for user-activity-tracking-api (better run via docker-compose):
+```sh
+DB_URL=postgres://postgres:password@localhost:5432/UserActivityTracking?sslmode=disable
+HTTP_PORT=8080
+CRON_TAB_COUNT_USERS_EVENT_TASK=0 */4 * * *
+```
+.env for user-activity-tracking-app (better run via docker-compose):
+```sh
+REACT_APP_API_BASE_URL=http://localhost:8080/api
+```
+REACT_APP_API_BASE_URL - `user-activity-tracking-api` link
 
 ## 📅 Daily job description
 1. **11.10.2025**:
@@ -91,3 +103,5 @@ docker-compose up --build -d
 4. The application was split into two repositories, as it's more appropriate to keep different system levels in separate repositories. But for your convenience, I created a single shared repository where I added the submodules.
 
 5. The cron settings were moved to the configs, as the interval may change in the future, and to make testing easier.
+
+6. For Grafana, visit `.\user-activity-tracking-api\prometheus\prometheus.yml`; and take note of the comment, please;
