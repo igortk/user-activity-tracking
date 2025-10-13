@@ -1,7 +1,8 @@
 # User Activity Tracking
 
 ## 📌 Description  
-User Activity Tracking is a user activity tracking system. The system allows you to add four types of user activity ('created', 'updated', 'deleted', 'viewed'), specify the time and date of this activity, and provide metadata that displays more detailed information about the activity (in JSON format). Every 4 hours (0 */4 * * * - defined in the config, can be changed), the system calculates the amount of activity for each user using a cron job. Monitoring is provided using Grafana (see point 3 in `Notes on any optional parts`). The Prometheus config for Grafana is located in `.\user-activity-tracking-api\prometheus\prometheus.yml`, when raising the entire system, please consider the comment.
+User Activity Tracking is a user activity tracking system. The system allows you to add four types of user activity ('created', 'updated', 'deleted', 'viewed'), specify the time and date of this activity, and provide metadata that displays more detailed information about the activity (in JSON format). Every 4 hours (0 */4 * * * - defined in the config, can be changed), the system calculates the amount of activity for each user using a cron job. Monitoring is provided using Grafana (monitoring description below). The Prometheus config for Grafana is located in `.\user-activity-tracking-api\prometheus\prometheus.yml`, when raising the entire system, please consider the comment.
+I recommend running it via Docker.
 
 ### 🏗 Tech Stack
 - **Back-end:**: Golang (gin, cors, logrus, gorm, prometheus/client_golang, gocron)
@@ -61,7 +62,7 @@ Response:
 ]
 ```
 
-## 🐳 Running via docker-compose
+## 🐳 Running via Docker
 The main docker-compose.yml resides at the root of this repository. This *.yml file runs all the necessary services (Grafana, Prometheus, databases, API and website).
 ### 1️⃣ Build the image and run all needed services
 ```sh
@@ -85,30 +86,7 @@ REACT_APP_API_BASE_URL=http://localhost:8080/api
 REACT_APP_API_BASE_URL - `user-activity-tracking-api` link
 
 ## 📈 Monitoring setup
-‼️Since there is currently no automatic creation of dashboards or datasource linking, you need to set everything up manually following the instructions:
-### ⚙️ Step 1: Access Grafana
-
-1. Open your browser and navigate to [http://localhost:3000](http://localhost:3000)
-2. Log in with default credentials: admin/admin
-3. When prompted, change the password (or skip if not required).
-   
-### 🧠 Step 2: Add Prometheus as a Data Source
-
-1. In Grafana, go to **Configuration** (⚙️ icon) → **Data Sources**
-2. Click **Add data source**
-3. Select **Prometheus**
-4. In the **URL** field, enter: `http://prometheus:9090`
-5. Click **Save & Test** to verify the connection
-
-## 📈 Step 3: Create Dashboard & Visualizations
-
-1. In Grafana, go to **Dashboards → New → Create Dashboard**
-2. Select **Visualization -> Select Prometheus.**
-3. Choose **Prometheus** as the data source
-4. Input sum(user_activity_tracking_api_requests_total) in the PromQL query field, run it, give the title "All Requests", and click Apply.
-5. Input sum by (path)(user_activity_tracking_api_requests_total) in the PromQL query field, run it, give the title "Total Request Endpoint", change the visualization to a bar gauge, and click Apply.
-6. Input sum by (path,status)(user_activity_tracking_api_requests_total) in the PromQL query field, run it, give the title "Request Error", change the visualization to a bar gauge, and click Apply.
-7. Click icon save then Save to make sure the dashboard is created.
+When raising all services via a common docker-compose, you can go to `http://localhost:3000` (our Grafana website). Log in (admin/admin) and then, if you want, you can change your password. A ready-made dashboard for monitoring is imported when services are launched (path: `.\user-activity-tracking-api\monitoring\grafana\provisioning\dashboards`). Logs are configured for services that are present in docker-compose. By going to http://localhost:3000/explore you can use the Loki query example `{service="api"}`. By going to `http://localhost:3000/a/grafana-lokiexplore-app/explore` in the filter field you can select the service for which you want to receive logs.
 
 ## 📅 Daily job description
 1. **11.10.2025**:
@@ -123,6 +101,7 @@ REACT_APP_API_BASE_URL - `user-activity-tracking-api` link
    - Connecting Grafana to the developed API;
    - Configuring datasource and dashboards (Grafana);
    - Website development (React);
+   - Fixing cors conflict Website and developed api;
    - Implementing Dockerfiles and docker-compose for a React application;
    - Implementing a common docker-compose for more convenient deployment of all services and applications
 3. **13.10.2025**:
@@ -130,6 +109,7 @@ REACT_APP_API_BASE_URL - `user-activity-tracking-api` link
    - Studying API log output information in Grafana;
    - Implementation of API logs in Grafana (not yet completed);
    - Fixing API, monitoring, and Docker file bugs;
+   - Fix README file;
 
 ## 📋 Notes on any optional parts
 1. The database stores two dates: the date the user's activity was recorded in the system and the date the activity was performed by the user (the user selects the date);
@@ -138,11 +118,12 @@ REACT_APP_API_BASE_URL - `user-activity-tracking-api` link
 
 3. Two metrics have been added to Grafana: user_activity_tracking_api_requests_total (shows the total number of requests) and user_activity_tracking_api_requests_errors_total (shows the number of requests that responded with some kind of error);
    
-4. The application was split into two repositories, as it's more appropriate to keep different system levels in separate repositories. But for your convenience, I created a single shared repository where I added the submodules.
+4. The application was split into two repositories, as it's more appropriate to keep different system levels in separate repositories. But for your convenience, I created a single shared repository where I added the submodules;
 
-5. The cron settings were moved to the configs, as the interval may change in the future, and to make testing easier.
+5. The cron settings were moved to the configs, as the interval may change in the future, and to make testing easier;
 
-6. For Grafana, visit `.\user-activity-tracking-api\prometheus\prometheus.yml`; and take note of the comment, please;
+6. For Grafana, visit `.\user-activity-tracking-api\monitoring` and you will be able to see the entire Grafana-configuration.
+
 
 
 
