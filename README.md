@@ -1,7 +1,13 @@
 # User Activity Tracking
 
 ## 📌 Description  
-smothing
+User Activity Tracking is a user activity tracking system. The system allows you to add four types of user activity ('created', 'updated', 'deleted', 'viewed'), specify the time and date of this activity, and provide metadata that displays more detailed information about the activity (in JSON format). Every 4 hours (0 */4 * * * - defined in the config, can be changed), the system calculates the amount of activity for each user using a cron job. Monitoring is provided using Grafana (see point 3 in `Notes on any optional parts`). The Prometheus config for Grafana is located in `.\user-activity-tracking-api\prometheus\prometheus.yml`, when raising the entire system, please consider the comment.
+
+### 🏗 Tech Stack
+- **Back-end:**: Golang (gin, cors, logrus, gorm, prometheus/client_golang, gocron)
+- **Front-end:** React
+- **Database:** Postgres:16
+- **Monitoring:** Grafana, Prometheus
 ## 📡 API requests example
 
 ### ➕ Create activity event
@@ -55,7 +61,6 @@ Response:
 ]
 ```
 
-
 ## 🐳 Running via docker-compose
 The main docker-compose.yml resides at the root of this repository. This *.yml file runs all the necessary services (Grafana, Prometheus, databases, API and website).
 ### 1️⃣ Build the image and run all needed services
@@ -66,14 +71,44 @@ docker-compose up --build -d
 .env for user-activity-tracking-api (better run via docker-compose):
 ```sh
 DB_URL=postgres://postgres:password@localhost:5432/UserActivityTracking?sslmode=disable
-HTTP_PORT=8080
 CRON_TAB_COUNT_USERS_EVENT_TASK=0 */4 * * *
+HTTP_PORT=8080
+HTTP_CORS_ALLOWED_ORIGINS=*
+HTTP_CORS_ALLOWED_METHODS=GET,POST
+HTTP_CORS_ALLOWED_HEADERS=Content-Type
+HTTP_CORS_MAX_AGE_HOURS_CACHE=12
 ```
 .env for user-activity-tracking-app (better run via docker-compose):
 ```sh
 REACT_APP_API_BASE_URL=http://localhost:8080/api
 ```
 REACT_APP_API_BASE_URL - `user-activity-tracking-api` link
+
+## 📈 Monitoring setup
+‼️Since there is currently no automatic creation of dashboards or datasource linking, you need to set everything up manually following the instructions:
+### ⚙️ Step 1: Access Grafana
+
+1. Open your browser and navigate to [http://localhost:3000](http://localhost:3000)
+2. Log in with default credentials: admin/admin
+3. When prompted, change the password (or skip if not required).
+   
+### 🧠 Step 2: Add Prometheus as a Data Source
+
+1. In Grafana, go to **Configuration** (⚙️ icon) → **Data Sources**
+2. Click **Add data source**
+3. Select **Prometheus**
+4. In the **URL** field, enter: `http://prometheus:9090`
+5. Click **Save & Test** to verify the connection
+
+## 📈 Step 3: Create Dashboard & Visualizations
+
+1. In Grafana, go to **Dashboards → New → Create Dashboard**
+2. Select **Visualization -> Select Prometheus.**
+3. Choose **Prometheus** as the data source
+4. Input sum(user_activity_tracking_api_requests_total) in the PromQL query field, run it, give the title "All Requests", and click Apply.
+5. Input sum by (path)(user_activity_tracking_api_requests_total) in the PromQL query field, run it, give the title "Total Request Endpoint", change the visualization to a bar gauge, and click Apply.
+6. Input sum by (path,status)(user_activity_tracking_api_requests_total) in the PromQL query field, run it, give the title "Request Error", change the visualization to a bar gauge, and click Apply.
+7. Click icon save then Save to make sure the dashboard is created.
 
 ## 📅 Daily job description
 1. **11.10.2025**:
@@ -105,3 +140,4 @@ REACT_APP_API_BASE_URL - `user-activity-tracking-api` link
 5. The cron settings were moved to the configs, as the interval may change in the future, and to make testing easier.
 
 6. For Grafana, visit `.\user-activity-tracking-api\prometheus\prometheus.yml`; and take note of the comment, please;
+
