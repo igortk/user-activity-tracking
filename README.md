@@ -127,6 +127,8 @@ REACT_APP_API_BASE_URL - `user-activity-tracking-api` link
    - Implementing a common docker-compose for more convenient deployment of all services and applications
 3. **13.10.2025**:
    - Described README file;
+   - Studying API log output information in Grafana;
+   - Implementation of API logs in Grafana (not yet completed);
 
 ## 📋 Notes on any optional parts
 1. The database stores two dates: the date the user's activity was recorded in the system and the date the activity was performed by the user (the user selects the date);
@@ -140,4 +142,5 @@ REACT_APP_API_BASE_URL - `user-activity-tracking-api` link
 5. The cron settings were moved to the configs, as the interval may change in the future, and to make testing easier.
 
 6. For Grafana, visit `.\user-activity-tracking-api\prometheus\prometheus.yml`; and take note of the comment, please;
+
 
