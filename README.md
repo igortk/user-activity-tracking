@@ -1,7 +1,7 @@
 # User Activity Tracking
 
 ## 📌 Description  
-User Activity Tracking is a user activity tracking system. The system allows you to add four types of user activity ('created', 'updated', 'deleted', 'viewed'), specify the time and date of this activity, and provide metadata that displays more detailed information about the activity (in JSON format). Every 4 hours (0 */4 * * * - defined in the config, can be changed), the system calculates the amount of activity for each user using a cron job. Monitoring is provided using Grafana (monitoring description below). The Prometheus config for Grafana is located in `.\user-activity-tracking-api\prometheus\prometheus.yml`, when raising the entire system, please consider the comment.
+User Activity Tracking is a user activity tracking system. The system allows you to add four types of user activity ('created', 'updated', 'deleted', 'viewed'), specify the time and date of this activity, and provide metadata that displays more detailed information about the activity (in JSON format). Every 4 hours (0 */4 * * * - defined in the config, can be changed), the system calculates the amount of activity for each user using a cron job. Monitoring is provided using Grafana (monitoring description below). The Prometheus config for Grafana is located in `.\user-activity-tracking-api\build\monitoring\prometheus\prometheus.yml`, when raising the entire system, please consider the comment.
 I recommend running it via Docker.
 
 ### 🏗 Tech Stack
@@ -34,7 +34,7 @@ Status 201
 ### 📋 Get users activity event by filter
 Request:
 
-GET /api/events?user_id=6&from=2025-10-10T15:43:10.380Z&to=2025-10-13T15:43:10.380Z
+GET /api/events?user_id=6&from=2025-10-10T15:43:10.380Z&to=2025-10-13T15:43:10.380Z&offset=0&limit=2
 
 Response:
 ```sh
@@ -86,7 +86,7 @@ REACT_APP_API_BASE_URL=http://localhost:8080/api
 REACT_APP_API_BASE_URL - `user-activity-tracking-api` link
 
 ## 📈 Monitoring setup
-When raising all services via a common docker-compose, you can go to `http://localhost:3000` (our Grafana website). Log in (admin/admin) and then, if you want, you can change your password. A ready-made dashboard for monitoring is imported when services are launched (path: `.\user-activity-tracking-api\monitoring\grafana\provisioning\dashboards`). Logs are configured for services that are present in docker-compose. By going to http://localhost:3000/explore you can use the Loki query example `{service="api"}`. By going to `http://localhost:3000/a/grafana-lokiexplore-app/explore` in the filter field you can select the service for which you want to receive logs.
+When raising all services via a common docker-compose, you can go to `http://localhost:3000` (our Grafana website). Log in (admin/admin) and then, if you want, you can change your password. A ready-made dashboard for monitoring is imported when services are launched (path: `.\user-activity-tracking-api\build\monitoring\grafana\provisioning\dashboards`). Logs are configured for services that are present in docker-compose. By going to http://localhost:3000/explore you can use the Loki query example `{service="api"}`. By going to `http://localhost:3000/a/grafana-lokiexplore-app/explore` in the filter field you can select the service for which you want to receive logs.
 
 ## 📅 Daily job description
 1. **11.10.2025**:
@@ -122,7 +122,8 @@ When raising all services via a common docker-compose, you can go to `http://loc
 
 5. The cron settings were moved to the configs, as the interval may change in the future, and to make testing easier;
 
-6. For Grafana, visit `.\user-activity-tracking-api\monitoring` and you will be able to see the entire Grafana-configuration.
+6. For Grafana, visit `.\user-activity-tracking-api\build\monitoring` and you will be able to see the entire Grafana-configuration.
+
 
 
 
